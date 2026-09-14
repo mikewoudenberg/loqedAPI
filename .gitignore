@@ -40,8 +40,7 @@ Thumbs.db
 !/src/
 !/tests/
 !/docs/
-!/setup.py
-!/setup.cfg
+!/.github/
 !/pyproject.toml
 !/LICENSE
 !/README.md

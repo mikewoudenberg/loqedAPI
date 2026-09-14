@@ -67,6 +67,22 @@ If you want to contribute:
 3. Run the test suite and ensure all tests pass.
 4. Open a pull request with a short description of the change.
 
+## Releasing
+
+Releases are built and published to PyPI automatically by a public GitHub Actions
+workflow (`.github/workflows/release.yml`) — there is no manual/local publish step.
+
+To cut a release:
+
+1. Draft a [GitHub Release](https://github.com/cpolhout/loqedAPI/releases) with a
+   tag in the form `vX.Y.Z` (e.g. `v2.1.12`).
+2. Publish the release. The package version is derived from the tag via
+   `setuptools-scm`, so the version on PyPI always matches a tagged commit in
+   this repository.
+3. CI runs the test suite, builds the sdist/wheel, and publishes to PyPI using
+   [PyPI Trusted Publishing](https://docs.pypi.org/trusted-publishers/) (no
+   stored API tokens).
+
 ## Where to find docs
 
 - Source code is under `src/loqedAPI`.

@@ -1,6 +1,45 @@
 [build-system]
-requires = [
-    "setuptools>=42",
-    "wheel"
-]
+requires = ["setuptools>=64", "setuptools-scm>=8"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "loqedAPI"
+dynamic = ["version"]
+description = "Python package to use the Loqed Smart Door Lock APIs in a local network. To be used by Home Assistant."
+readme = "README.md"
+license = { file = "LICENSE" }
+authors = [
+    { name = "Casper Polhout", email = "cpolhout@gmail.com" },
+    { name = "Mike Woudenberg", email = "mwoudenberg@xebia.com" },
+]
+requires-python = ">=3.9"
+dependencies = [
+    "aiohttp",
+    "async-timeout",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: BSD License",
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+Homepage = "https://github.com/cpolhout/loqedAPI"
+"Bug Tracker" = "https://github.com/cpolhout/loqedAPI/issues"
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-asyncio",
+    "pytest-cov",
+    "aioresponses",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+exclude = ["tests", "generator"]
+
+[tool.setuptools_scm]
+# Version is derived from the git tag (e.g. v2.1.12 -> 2.1.12).
