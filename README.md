@@ -6,6 +6,15 @@ This repository provides a small async-first Python client for the Loqed Touch s
 
 1. Install the package (recommended: in a virtualenv):
 
+Using [`uv`](https://docs.astral.sh/uv/) (recommended):
+
+```bash
+uv venv
+uv pip install -e .
+```
+
+Using `pip`:
+
 ```bash
 python -m venv .venv
 source .venv/bin/activate
@@ -15,8 +24,17 @@ pip install -e .
 2. Install dev/test dependencies (optional):
 
 ```bash
-pip install -e .[dev]
+uv pip install -e ".[dev]"
 ```
+
+or with `pip`:
+
+```bash
+pip install -e ".[dev]"
+```
+
+> Note: quote `.[dev]` (as above) — in zsh, an unquoted `.[dev]` is interpreted as a
+> glob pattern and fails with `no matches found: .[dev]`.
 
 3. Use the client (async):
 
@@ -45,7 +63,16 @@ Notes:
 
 ## Testing
 
-Run the test suite with pytest (the project uses `pytest-asyncio` and `aioresponses`):
+Run the test suite with pytest (the project uses `pytest-asyncio` and `aioresponses`).
+
+With `uv` (no need to activate the venv or pre-install anything — `uv run` syncs the
+`dev` extra into an ephemeral environment automatically):
+
+```bash
+uv run --extra dev pytest --cov=src/loqedAPI --cov-report=term-missing
+```
+
+With `pip`/a manually activated venv:
 
 ```bash
 source .venv/bin/activate
@@ -54,8 +81,10 @@ pytest --cov=src/loqedAPI --cov-report=term-missing
 
 ## Development
 
-- The package follows standard Python packaging with `pyproject.toml`/`setup.py`.
-- Dev/test dependencies are available under the `dev` extra: `pip install -e .[dev]`.
+- The package follows standard Python packaging with `pyproject.toml` (version is
+  derived from git tags via `setuptools-scm`).
+- Dev/test dependencies are available under the `dev` extra: `uv pip install -e ".[dev]"`
+  or `pip install -e ".[dev]"`.
 - When editing code, run the tests frequently. The tests are fast and designed to mock network calls.
 
 ## Contributing

@@ -14,7 +14,9 @@ authors = [
 ]
 requires-python = ">=3.9"
 dependencies = [
-    "aiohttp",
+    # aioresponses 0.7.9 (latest) doesn't yet support aiohttp's ClientResponse
+    # signature change in 3.14.0 (new required `stream_writer` kwarg).
+    "aiohttp>=3.8,<3.14",
     "async-timeout",
 ]
 classifiers = [
