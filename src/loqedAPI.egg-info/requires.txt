@@ -1,8 +1,0 @@
-aiohttp
-async-timeout
-
-[dev]
-pytest
-pytest-asyncio
-pytest-cov
-aioresponses
