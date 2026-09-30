@@ -61,6 +61,12 @@ Notes:
 - The library is async-first and uses `aiohttp` for HTTP calls.
 - `APIClient` accepts `base_url` and an optional `token` (for authorization) or you can provide your own `aiohttp.ClientSession`.
 
+### Online status
+
+`Lock.online` is `True` when the lock is connected to the bridge. It is read from `lock_online` in the `/status` response (refreshed by `Lock.update()`) and kept current by `trigger_online_status` webhooks (bit 8, enabled by the default `registerWebhook` flags), which carry `ble_strength` (`-1` means not connected) and `wifi_strength`.
+
+While the lock is offline the bridge reports `battery_percentage` as `-1`, so check `lock.online` before using the battery value.
+
 ## Testing
 
 Run the test suite with pytest (the project uses `pytest-asyncio` and `aioresponses`).
