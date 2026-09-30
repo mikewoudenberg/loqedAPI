@@ -104,6 +104,14 @@ class Lock:
         return self.raw_data["ble_strength"]
 
     @property
+    def online(self) -> bool:
+        """Return whether the lock is connected to the bridge."""
+        if "lock_online" in self.raw_data:
+            return bool(int(self.raw_data["lock_online"]))
+        # ble_strength of -1 means the lock is not connected to the bridge
+        return self.raw_data.get("ble_strength") != -1
+
+    @property
     def battery_type(self) -> str:
         """Return the battery type of the lock."""
         return self.raw_data["battery_type"]
@@ -288,15 +296,30 @@ class Lock:
             }
             _LOGGER.error("ERROR: %s", error)
             return error
+        # ONLINE STATUS
+        if "wifi_strength" in data:
+            self.raw_data["wifi_strength"] = data["wifi_strength"]
+        if "ble_strength" in data:
+            self.raw_data["ble_strength"] = data["ble_strength"]
+            self.raw_data["lock_online"] = 0 if data["ble_strength"] == -1 else 1
+
         if "battery_percentage" in data:
             self.battery_percentage = data["battery_percentage"]
-        elif "ble_strength" in data:
-            self.raw_data["ble_strength"] = data["ble_strength"]
+            if "battery_type" in data:
+                self.raw_data["battery_type"] = data["battery_type"]
+            # The bridge reports -1 while the lock is offline, so a real battery
+            # reading is what tells us it has reconnected (no ble_strength is sent then)
+            if "ble_strength" not in data:
+                self.raw_data["lock_online"] = 0 if data["battery_percentage"] == -1 else 1
+        elif "ble_strength" in data or "wifi_strength" in data:
+            pass
         else:
             self.last_event = data["event_type"].strip().lower()
             # BOLT STATE CHANGE
             if self.last_event.split("_")[0] == "state":
                 self.bolt_state = str.replace(self.last_event, "state_changed_", "")
+                # The lock itself reported a state, so it is connected to the bridge
+                self.raw_data["lock_online"] = 1
             else:
                 # GOTO_STATE, only update the state if the target state is unequal to the current state
                 if "night_lock" in self.last_event and "night_lock" not in self.bolt_state:
