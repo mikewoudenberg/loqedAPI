@@ -305,6 +305,12 @@ class Lock:
 
         if "battery_percentage" in data:
             self.battery_percentage = data["battery_percentage"]
+            if "battery_type" in data:
+                self.raw_data["battery_type"] = data["battery_type"]
+            # The bridge reports -1 while the lock is offline, so a real battery
+            # reading is what tells us it has reconnected (no ble_strength is sent then)
+            if "ble_strength" not in data:
+                self.raw_data["lock_online"] = 0 if data["battery_percentage"] == -1 else 1
         elif "ble_strength" in data or "wifi_strength" in data:
             pass
         else:
@@ -312,6 +318,8 @@ class Lock:
             # BOLT STATE CHANGE
             if self.last_event.split("_")[0] == "state":
                 self.bolt_state = str.replace(self.last_event, "state_changed_", "")
+                # The lock itself reported a state, so it is connected to the bridge
+                self.raw_data["lock_online"] = 1
             else:
                 # GOTO_STATE, only update the state if the target state is unequal to the current state
                 if "night_lock" in self.last_event and "night_lock" not in self.bolt_state:

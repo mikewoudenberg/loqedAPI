@@ -203,6 +203,48 @@ async def test_receive_webhook_online_status(lock, valid_base64):
 
 
 @pytest.mark.asyncio
+async def test_receive_webhook_offline_then_reconnect(lock, valid_base64):
+    """Payloads captured from a real bridge when the battery was removed and re-inserted."""
+    timestamp = int(time.time())
+
+    body = '{"wifi_strength":51,"ble_strength":-1,"mac_wifi":"AA:BB:CC:00:00:01","mac_ble":"AA:BB:CC:00:00:02"}'
+    await lock.receiveWebhook(body, compute_webhook_hash(body, timestamp, valid_base64), str(timestamp))
+    assert lock.online is False
+
+    body = '{"battery_type":"NICKEL_METAL_HYDRIDE","battery_percentage":91,"mac_wifi":"AA:BB:CC:00:00:01","mac_ble":"AA:BB:CC:00:00:02"}'
+    await lock.receiveWebhook(body, compute_webhook_hash(body, timestamp, valid_base64), str(timestamp))
+    assert lock.online is True
+    assert lock.battery_percentage == 91
+    assert lock.battery_type == "NICKEL_METAL_HYDRIDE"
+
+
+@pytest.mark.asyncio
+async def test_receive_webhook_state_change_marks_online(lock, valid_base64):
+    lock.raw_data["lock_online"] = 0
+    body = '{"key_local_id": 3, "event_type": "STATE_CHANGED_NIGHT_LOCK"}'
+    timestamp = int(time.time())
+    await lock.receiveWebhook(body, compute_webhook_hash(body, timestamp, valid_base64), str(timestamp))
+    assert lock.online is True
+
+
+@pytest.mark.asyncio
+async def test_receive_webhook_goto_state_does_not_mark_online(lock, valid_base64):
+    lock.raw_data["lock_online"] = 0
+    body = '{"key_local_id": 4, "event_type": "GOTO_STATE_NIGHT_LOCK"}'
+    timestamp = int(time.time())
+    await lock.receiveWebhook(body, compute_webhook_hash(body, timestamp, valid_base64), str(timestamp))
+    assert lock.online is False
+
+
+@pytest.mark.asyncio
+async def test_receive_webhook_battery_offline_marker(lock, valid_base64):
+    body = '{"battery_percentage": -1}'
+    timestamp = int(time.time())
+    await lock.receiveWebhook(body, compute_webhook_hash(body, timestamp, valid_base64), str(timestamp))
+    assert lock.online is False
+
+
+@pytest.mark.asyncio
 async def test_receive_webhook_battery_and_ble_strength(lock, valid_base64):
     body = '{"battery_percentage": 70, "ble_strength": -1}'
     timestamp = int(time.time())
