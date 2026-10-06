@@ -9,9 +9,14 @@ logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
 _LOGGER = logging.getLogger(__name__)
 
 class CloudAPIClient(AbstractAPIClient):
-    def __init__(self, websession: ClientSession, token: str | None = None):
+    def __init__(
+        self,
+        websession: ClientSession,
+        token: str | None = None,
+        cloud_base_url: str = CLOUD_BASE_URL,
+    ):
         """Initialize the auth."""
-        super().__init__(websession, CLOUD_BASE_URL, token)
+        super().__init__(websession, cloud_base_url, token)
 
 
 class LoqedCloudAPI:
