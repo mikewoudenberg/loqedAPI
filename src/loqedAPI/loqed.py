@@ -354,6 +354,7 @@ class LoqedAPI:
         """Return the locks with lock-data"""
         if not json_data:
             resp = await self.apiclient.request("get", "status")
+            resp.raise_for_status()
             json_data = await resp.json(content_type=None)
         return Lock(json_data, secret, bridgekey, key_id, name, self.apiclient)
 
