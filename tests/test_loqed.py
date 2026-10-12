@@ -95,6 +95,18 @@ async def test_loqedapi_get_lock(valid_base64, raw_data, client):
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize("status", [401, 403, 500])
+async def test_loqedapi_get_lock_raises_on_error_status(valid_base64, client, status):
+    """An error from /status must surface as ClientResponseError, not as a parse error"""
+    api = LoqedAPI(client)
+    with aioresponses() as m:
+        m.get(f"{client.host}/status", body="error", status=status)
+        with pytest.raises(aiohttp.ClientResponseError) as err:
+            await api.async_get_lock(valid_base64, valid_base64, 1, "TestLock")
+    assert err.value.status == status
+
+
+@pytest.mark.asyncio
 async def test_async_get_lock_details(client, raw_data):
     """LoqedAPI.async_get_lock_details should return the parsed JSON from /status"""
     api = LoqedAPI(client)
