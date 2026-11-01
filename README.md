@@ -67,6 +67,25 @@ Notes:
 
 While the lock is offline the bridge reports `battery_percentage` as `-1`, so check `lock.online` before using the battery value.
 
+### Open House Mode
+
+The cloud Integrations API can read and change Open House Mode using a personal
+access token and the cloud lock ID. This feature requires internet access.
+
+```python
+import aiohttp
+from loqedAPI.cloud_loqed import CloudAPIClient, LoqedCloudAPI
+
+async def open_house_mode(token: str, lock_id: str) -> None:
+    async with aiohttp.ClientSession() as session:
+        api = LoqedCloudAPI(CloudAPIClient(session, token))
+        print(await api.async_get_open_house_mode(lock_id))
+        await api.async_set_open_house_mode(lock_id, False)
+```
+
+A successful setting request is not proof that the lock has applied it. Read
+the setting again to confirm; the reported value may update with a delay.
+
 ## Testing
 
 Run the test suite with pytest (the project uses `pytest-asyncio` and `aioresponses`).
