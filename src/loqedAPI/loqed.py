@@ -316,7 +316,10 @@ class Lock:
         else:
             self.last_event = data["event_type"].strip().lower()
             # BOLT STATE CHANGE
-            if self.last_event.split("_")[0] == "state":
+            if self.last_event == "motor_stall":
+                # The motor stalled before the bolt reached the requested state
+                self.bolt_state = "motor_stall"
+            elif self.last_event.split("_")[0] == "state":
                 self.bolt_state = str.replace(self.last_event, "state_changed_", "")
                 # The lock itself reported a state, so it is connected to the bridge
                 self.raw_data["lock_online"] = 1

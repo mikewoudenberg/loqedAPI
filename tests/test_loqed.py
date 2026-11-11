@@ -278,6 +278,27 @@ async def test_receive_webhook_bolt_state_change(lock, valid_base64):
 
 
 @pytest.mark.asyncio
+async def test_receive_webhook_motor_stall(lock, valid_base64):
+    body = (
+        '{"requested_state":"UNKNOWN","requested_state_numeric":0,'
+        '"mac_wifi":"AA:BB:CC:00:00:01","mac_ble":"AA:BB:CC:00:00:02",'
+        '"event_type":"MOTOR_STALL","key_local_id":7}'
+    )
+    timestamp = int(time.time())
+    hash_val = compute_webhook_hash(body, timestamp, valid_base64)
+    lock.bolt_state = "locking"
+    await lock.receiveWebhook(body, hash_val, str(timestamp))
+    assert lock.bolt_state == "motor_stall"
+    assert lock.last_event == "motor_stall"
+    assert lock.last_key_id == 7
+
+    body = '{"key_local_id": 7, "event_type": "STATE_CHANGED_NIGHT_LOCK"}'
+    hash_val = compute_webhook_hash(body, timestamp, valid_base64)
+    await lock.receiveWebhook(body, hash_val, str(timestamp))
+    assert lock.bolt_state == "night_lock"
+
+
+@pytest.mark.asyncio
 async def test_receive_webhook_goto_state_night_lock(lock, valid_base64):
     body = '{"key_local_id": 4, "event_type": "GOTO_STATE_NIGHT_LOCK"}'
     timestamp = int(time.time())
